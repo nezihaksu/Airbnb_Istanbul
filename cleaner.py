@@ -97,7 +97,4 @@ class Cleaner():
 	  return self.df
 
 	def drop_outliers(self):
-    	pass
-
-if __name__ == '__main__':
-	Cleaner()
+		pass

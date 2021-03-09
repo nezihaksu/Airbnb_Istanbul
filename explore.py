@@ -44,5 +44,3 @@ class Explore():
   def corr_heat_map(self):
     pass
 
-if __name__ == '__main__':
-  Explore()

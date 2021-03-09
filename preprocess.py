@@ -19,7 +19,7 @@ class Preprocess():
     continuous_features = []
     discrete_features = []
     for column in self.df.columns:
-      if all(self.df[column].astype(str).str.contains(num_pattern,regex=True)) and len(df[column].unique()) > 2:
+      if all(self.df[column].astype(str).str.contains(num_pattern,regex=True)) and len(self.df[column].unique()) > 2:
         continuous_features.append(column)
       else:
         discrete_features.append(column)
@@ -52,6 +52,3 @@ class Preprocess():
 
   def polytrans(self):
     pass
-
-if __name__ == '__main__':
-  Preprocess()
