@@ -6,11 +6,11 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.impute import SimpleImputer
 
 class Preprocess():
-
+  """Preprocess the dataset after cleaning."""
   def __init__(self,df):
     self.df = df
-    self.numerical_df,self.categorical_df = self._split_into_cat_num_df()
-  
+    self.numerical_df,self.categorical_df,self.numerical_features,self.categorical_features = self._split_into_cat_num_df()
+      
   def __call__(self):
     return self.df
   
@@ -19,12 +19,11 @@ class Preprocess():
     continuous_features = []
     discrete_features = []
     for column in self.df.columns:
-      if all(self.df[column].astype(str).str.contains(num_pattern,regex=True)):
+      if all(self.df[column].astype(str).str.contains(num_pattern,regex=True)) and len(df[column].unique()) > 2:
         continuous_features.append(column)
       else:
         discrete_features.append(column)
-    return self.df[continuous_features],self.df[discrete_features]
-
+    return self.df[continuous_features],self.df[discrete_features],continuous_features,discrete_features
 
   def drop_multicoll_columns(self,allowed_corr_percentage:int):
     corr_matrix = self.numerical_df.corr()
@@ -33,22 +32,26 @@ class Preprocess():
     return corr_matrix
 
 
+  def imputer(self,strategy="most_frequent"):
+    simple_imputer = SimpleImputer(strategy=strategy)
+    for column in self.df.columns:
+      if pd.DataFrame.any(self.df[column].isnull()):
+        self.df[column] = simple_imputer.fit_transform(self.df[column].values.reshape(-1,1))
+    print(self.df.describe())
+    return self.df
+
+
   def one_hot_encoder(self):
-    # Preprocessing for numerical data
-    numerical_transformer = SimpleImputer(strategy='constant')
+    one_hot = OneHotEncoder(handle_unknown="ignore")
+    #Preprocessing for numerical and categorical data
+    transformer = ColumnTransformer(
+      transformers=[('one_hot',one_hot,self.categorical_features)
+      ])
+    transformer.fit_transform(self.categorical_df)
+    return self.df
 
-    # Preprocessing for categorical data
-    categorical_transformer = Pipeline(steps=[
-        ('imputer', SimpleImputer(strategy='most_frequent')),
-        ('onehot', OneHotEncoder(handle_unknown='ignore'))
-        ])
-
-    # Bundle preprocessing for numerical and categorical data
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('num', numerical_transformer, numerical_cols),
-            ('cat', categorical_transformer, categorical_cols)
-        ])
-      return self.df
   def polytrans(self):
     pass
+
+if __name__ == '__main__':
+  Preprocess()
