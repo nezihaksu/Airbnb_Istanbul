@@ -13,7 +13,17 @@ NONE_VALUES = [np.nan,None,"None","Null","NONE","NULL","none","null","nan",""," 
 OUTLIER_COLUMN = ""
 ALLOWED_CORR_PER = 0.8
 
+
+
 class Pipelines():
+
+	def explorer(self,df,file_type:None,x:None,y:None):
+		explorer = Explore(df,file_type)
+		explorer.intro()
+		explorer.unique_values()
+		explorer.missing_values()
+		explorer.dtype_histogram()
+		explorer.scatter_plot(x,y)
 
 	def cleaner_pipeline(self,df,file_type,inplace,missing_percentage):
 		cleaner = Cleaner(df,file_type)
@@ -23,15 +33,18 @@ class Pipelines():
 		cleaner.drop_missing_columns(missing_percentage)
 		cleaner.strip_signs()
 		df = cleaner.drop_special_columns(inplace=inplace)
-		return df 	
+		return df
 	
 	def preprocess_pipeline(self,df,outlier_column:str,corr_percentage):
 		preprocess = Preprocess(df)
-		return preprocess.drop_multicoll_columns(ALLOWED_CORR_PER)
+		return preprocess.numerical_df
+		#preprocess.drop_multicoll_columns(ALLOWED_CORR_PER)
+
+
 
 if __name__ == '__main__':
 	pipelines = Pipelines()
 	cleaned_df = pipelines.cleaner_pipeline(DF,FILE_TYPE,INPLACE,ALLOWED_NAN_PER)
-	matrix = pipelines.preprocess_pipeline(cleaned_df,OUTLIER_COLUMN,ALLOWED_CORR_PER)
-	print(matrix)
-	#print(preprocessed_df)
+	#print(cleaned_df)
+	preprocessed_df = pipelines.preprocess_pipeline(cleaned_df,OUTLIER_COLUMN,ALLOWED_CORR_PER)
+	explorer = pipelines.explorer(preprocessed_df)

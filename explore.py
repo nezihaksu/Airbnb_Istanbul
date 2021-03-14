@@ -8,11 +8,13 @@ FILE_TYPE = "csv"
 
 class Explore():
   """Explore the dataset."""
-  def __init__(self,df,file_type:str):
-    if file_type == "xlsx" or  file_type == "xls":
+  def __init__(self,df,file_type=None):
+    if isinstance(df,pd.DataFrame):
+      self.df = df
+    elif file_type == "xlsx" or  file_type == "xls":
       self.df = pd.read_excel(df,engine="python")
-    self.df = pd.read_csv(df,engine="python")
-    self.file_type = file_type
+    else:
+      self.df = pd.read_csv(df,engine="python")
 
   def __call__(self):
     return self.df
@@ -44,3 +46,6 @@ class Explore():
   def corr_heat_map(self):
     pass
 
+  def scatter_plot(self,x,y):
+    plt.scatter(x=x,y=y,alpha = 0.6,norm = 0.5)
+    plt.show()
