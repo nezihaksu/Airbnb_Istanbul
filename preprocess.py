@@ -27,10 +27,11 @@ class Preprocess():
 
   def drop_multicoll_columns(self,allowed_corr_percentage:int):
     corr_matrix = self.numerical_df.corr()
-    corr_matrix[corr_matrix]
-    #multicoll_indexes = np.where(np.logical_and(corr_matrix < 1.0, corr_matrix > self.corr_percetage))
-    return corr_matrix
-
+    percentage_condition = ((allowed_corr_percentage < corr_matrix.values)&(corr_matrix.values < 1))
+    #Finding features that have correlation more than allowed percentage with others.
+    corr_features = list(set([corr_matrix.index[row] for row,_ in zip(*np.where(percentage_condition))]))
+    self.df.drop(corr_features,axis=1,inplace=True)
+    return self.df
 
   def imputer(self,strategy="most_frequent"):
     simple_imputer = SimpleImputer(strategy=strategy)
@@ -54,7 +55,7 @@ class Preprocess():
     pass
 
   #If the size of dataset is less than 1000 outlier's effect can be seen in the model's outcome.
-  def drop_outliers(self,column:list,upper_quantile:float=0.99,lower_quantile:float=0.01):
+  def drop_outliers(self,column:str,upper_quantile:float=0.99,lower_quantile:float=0.01):
     upper_quantile,lower_quantile = self.df[column].quantile(upper_quantile),self.df[column].quantile(lower_quantile)
     self.df = self.df[(df[column] < upper_quantile) & (df[column] > lower_quantile)]
     return self.df
