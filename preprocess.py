@@ -52,3 +52,10 @@ class Preprocess():
 
   def polytrans(self):
     pass
+
+  #If the size of dataset is less than 1000 outlier's effect can be seen in the model's outcome.
+  def drop_outliers(self,column:list,upper_quantile:float=0.99,lower_quantile:float=0.01):
+    upper_quantile,lower_quantile = self.df[column].quantile(upper_quantile),self.df[column].quantile(lower_quantile)
+    self.df = self.df[(df[column] < upper_quantile) & (df[column] > lower_quantile)]
+    return self.df
+

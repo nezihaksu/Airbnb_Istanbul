@@ -12,10 +12,9 @@ DROP_KEYWORDS = ["code","zipcode","link","url","id","name","thumbnail","picture"
 NONE_VALUES = [np.nan,None,"None","Null","NONE","NULL","none","null","nan",""," ",0]
 
 
-class HighLevel():
+class Pipelines():
 
-	@staticmethod
-	def cleaner_pipeline(df,file_type,inplace,missing_percentage):
+	def cleaner_pipeline(self,df,file_type,inplace,missing_percentage):
 		cleaner = Cleaner(df,file_type)
 		cleaner.drop_column_contains(DROP_KEYWORDS)
 		cleaner.drop_sentence_columns(inplace=inplace)
@@ -25,14 +24,13 @@ class HighLevel():
 		df = cleaner.drop_special_columns(inplace=inplace)
 		return df 	
 	
-	@staticmethod
-	def preprocess_pipeline(df):
+	def preprocess_pipeline(self,df):
 		preprocess = Preprocess(df)
-		preprocess.one_hot_encoder()
+		df = preprocess.drop_outliers
+		return df
 
-		
 if __name__ == '__main__':
-	all_pipelines = HighLevel()
-	cleaned_df = all_pipelines.cleaner_pipeline(DF,FILE_TYPE,INPLACE,ALLOWED_NAN_PERCENTAGE)
-	preprocessed_df = all_pipelines.preprocess_pipeline(cleaned_df)
-
+	pipelines = Pipelines()
+	cleaned_df = pipelines.cleaner_pipeline(DF,FILE_TYPE,INPLACE,ALLOWED_NAN_PERCENTAGE)
+	pipelines.preprocess_pipeline(cleaned_df)
+	#print(preprocessed_df)

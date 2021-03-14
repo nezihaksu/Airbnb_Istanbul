@@ -97,4 +97,4 @@ class Cleaner():
 	  return self.df
 
 	def drop_outliers(self):
-		pass
+		return len(self.df[self.df.isna()])
