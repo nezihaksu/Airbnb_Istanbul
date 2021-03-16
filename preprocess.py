@@ -15,18 +15,18 @@ class Preprocess():
     return self.df
   
   def _split_into_cat_num_df(self):
-    num_pattern = r"[0-9]"
+    num_pattern = r"[\d]"
     continuous_features = []
     discrete_features = []
     for column in self.df.columns:
-      if all(self.df[column].astype(str).str.contains(num_pattern,regex=True)) and len(self.df[column].unique()) > 2:
+      if self.df[column].dtype != "object":
         continuous_features.append(column)
       else:
         discrete_features.append(column)
     return self.df[continuous_features],self.df[discrete_features],continuous_features,discrete_features
 
   def drop_multicoll_columns(self,allowed_corr_percentage:int):
-    corr_matrix = self.numerical_df.corr()
+    corr_matrix = self.df[self.numerical_features].corr()
     percentage_condition = ((allowed_corr_percentage < corr_matrix.values)&(corr_matrix.values < 1))
     #Finding features that have correlation more than allowed percentage with others.
     corr_features = list(set([corr_matrix.index[row] for row,_ in zip(*np.where(percentage_condition))]))
@@ -38,17 +38,12 @@ class Preprocess():
     for column in self.df.columns:
       if pd.DataFrame.any(self.df[column].isnull()):
         self.df[column] = simple_imputer.fit_transform(self.df[column].values.reshape(-1,1))
-    print(self.df.describe())
     return self.df
 
-
   def one_hot_encoder(self):
-    one_hot = OneHotEncoder(handle_unknown="ignore")
-    #Preprocessing for numerical and categorical data
-    transformer = ColumnTransformer(
-      transformers=[('one_hot',one_hot,self.categorical_features)
-      ])
-    transformer.fit_transform(self.categorical_df)
+    encoder = OneHotEncoder(categories = self.categorical_features,handle_unknown='error')
+    #encoded_categorical_df = encoder.fit_transform(self.df[self.categorical_features])
+    #self.df = pd.concat([encoded_categorical_df,self.df[self.numerical_features]])
     return self.df
 
   def polytrans(self):

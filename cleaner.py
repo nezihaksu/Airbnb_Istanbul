@@ -88,13 +88,17 @@ class Cleaner():
 	  starts_ends_special_pattern =  r'|'.join((starts_with_special_pattern,ends_with_special_pattern))
 	  return self._drop_type_column(starts_ends_special_pattern,inplace)
 	
+	#When there is a sign near a number that column dtype is object \
+	#It should be converted into numerical dtype after stripping for further processes.(int64,float64).
 	def strip_signs(self):
 	  num_pattern = r"[0-9]"
 	  non_num_pattern = r"[^0-9]"
 	  for column in self.df.columns:
 	    if all(self.df[column].astype(str).str.contains(num_pattern,regex=True)):
 	      self.df[column].replace(non_num_pattern,"",regex=True,inplace=True)
+	      self.df[column] = pd.to_numeric(self.df[column])
 	  return self.df
-
-	def drop_outliers(self):
-		return len(self.df[self.df.isna()])
+	
+	def space_to_underscore(self):
+		self.df.replace(" ","_",regex=True,inplace=True)
+		return self.df
