@@ -9,12 +9,12 @@ class Preprocess():
   """Preprocess the dataset after cleaning."""
   def __init__(self,df):
     self.df = df
-    self.numerical_df,self.categorical_df,self.numerical_features,self.categorical_features = self._split_into_cat_num_df()
+    self.categorical_features,self.numerical_features = self._cat_num_features()
       
   def __call__(self):
     return self.df
   
-  def _split_into_cat_num_df(self):
+  def _cat_num_features(self):
     num_pattern = r"[\d]"
     continuous_features = []
     discrete_features = []
@@ -23,7 +23,7 @@ class Preprocess():
         continuous_features.append(column)
       else:
         discrete_features.append(column)
-    return self.df[continuous_features],self.df[discrete_features],continuous_features,discrete_features
+    return discrete_features,continuous_features
 
   def drop_multicoll_columns(self,allowed_corr_percentage:int):
     corr_matrix = self.df[self.numerical_features].corr()
@@ -31,6 +31,7 @@ class Preprocess():
     #Finding features that have correlation more than allowed percentage with others.
     corr_features = list(set([corr_matrix.index[row] for row,_ in zip(*np.where(percentage_condition))]))
     self.df.drop(corr_features,axis=1,inplace=True)
+    self.categorical_features,self.numerical_features = self._cat_num_features()
     return self.df
 
   def imputer(self,strategy="most_frequent"):
@@ -41,9 +42,14 @@ class Preprocess():
     return self.df
 
   def one_hot_encoder(self):
-    encoder = OneHotEncoder(categories = self.categorical_features,handle_unknown='error')
-    #encoded_categorical_df = encoder.fit_transform(self.df[self.categorical_features])
-    #self.df = pd.concat([encoded_categorical_df,self.df[self.numerical_features]])
+    all_categories = []
+    for column in self.categorical_features:
+      all_categories += [list(self.df[column].unique())]
+    encoder = OneHotEncoder(categories = all_categories,sparse=False,handle_unknown='error')
+    encoder.fit(self.df[self.categorical_features])
+    encoded_categorical_matrix = encoder.transform(self.df[self.categorical_features])
+    encoded_categorical_df = pd.DataFrame(encoded_categorical_matrix)
+    self.df = pd.concat([encoded_categorical_df,self.df[self.numerical_features]],axis=1)
     return self.df
 
   def polytrans(self):
@@ -53,5 +59,6 @@ class Preprocess():
   def drop_outliers(self,column:str,upper_quantile:float=0.99,lower_quantile:float=0.01):
     upper_quantile,lower_quantile = self.df[column].quantile(upper_quantile),self.df[column].quantile(lower_quantile)
     self.df = self.df[(df[column] < upper_quantile) & (df[column] > lower_quantile)]
+    self.categorical_features,self.numerical_features = self._cat_num_features()
     return self.df
 

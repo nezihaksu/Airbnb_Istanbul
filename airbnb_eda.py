@@ -40,12 +40,12 @@ class Pipelines():
 	
 	def preprocess_pipeline(self,df,upper_quantile,lower_quantile,outlier_column:str=None,corr_percentage=0.7):
 		preprocess = Preprocess(df)
-		#if outlier_column != None:
-		#	preprocess.drop_outliers(outlier_column,upper_quantile,lower_quantile)
-		#preprocess.drop_multicoll_columns(ALLOWED_CORR_PER)
-		#df = preprocess.imputer()
-		#df = preprocess.one_hot_encoder()
-		return preprocess.numerical_df
+		if outlier_column != None:
+			preprocess.drop_outliers(outlier_column,upper_quantile,lower_quantile)
+		preprocess.drop_multicoll_columns(ALLOWED_CORR_PER)
+		preprocess.imputer()
+		df = preprocess.one_hot_encoder()
+		return df
 
 
 
