@@ -51,6 +51,7 @@ class Pipelines():
 
 if __name__ == '__main__':
 	pipelines = Pipelines()
+	expore = Pipelines().explorer(DF,FILE_TYPE)
 	cleaned_df = pipelines.cleaner_pipeline(DF,FILE_TYPE,INPLACE,ALLOWED_NAN_PER)
 	preprocessed_df = pipelines.preprocess_pipeline(cleaned_df,OUTLIER_COLUMN,ALLOWED_CORR_PER)
 	print(preprocessed_df)

@@ -2,8 +2,9 @@ import pandas as pd
 import numpy as np
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder,PolynomialFeatures
 from sklearn.impute import SimpleImputer
+from sklearn.model_selection import train_test_split
 
 class Preprocess():
   """Preprocess the dataset after cleaning."""
@@ -15,7 +16,6 @@ class Preprocess():
     return self.df
   
   def _cat_num_features(self):
-    num_pattern = r"[\d]"
     continuous_features = []
     discrete_features = []
     for column in self.df.columns:
@@ -52,8 +52,11 @@ class Preprocess():
     self.df = pd.concat([encoded_categorical_df,self.df[self.numerical_features]],axis=1)
     return self.df
 
-  def polytrans(self):
-    pass
+  def polytrans(self,column):
+    poly_transformer = PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)
+    self.df[column] = poly_transformer.fit_transform(self.df[column])
+    return self.df
+
 
   #If the size of dataset is less than 1000 outlier's effect can be seen in the model's outcome.
   def drop_outliers(self,column:str,upper_quantile:float=0.99,lower_quantile:float=0.01):
@@ -62,3 +65,5 @@ class Preprocess():
     self.categorical_features,self.numerical_features = self._cat_num_features()
     return self.df
 
+  def train_test_split(self,x,y,validation=False):
+    pass
