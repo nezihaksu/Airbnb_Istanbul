@@ -17,6 +17,7 @@ LOWER_QUANTILE = 0.01
 ALLOWED_CORR_PER = 0.8
 TEST_SIZE = 0.25
 VALIDATION_DATASET = False
+STRATIFIED_SPLIT = False
 
 class Pipelines():
 
@@ -55,6 +56,7 @@ class Pipelines():
 		features = preprocess.one_hot_encoder()
 		if validation:
 			x_train,y_train,x_test,y_test,x_validation,y_validation = train_test_split(features,target,test_size,validation)
+			return x_train,y_train,x_test,y_test,x_validation,y_validation
 		x_train,y_train,x_test,y_test = preprocess.train_test_split(features,target,test_size,validation)
 		return x_train,y_train,x_test,y_test
 

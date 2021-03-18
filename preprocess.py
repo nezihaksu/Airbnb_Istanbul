@@ -4,7 +4,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder,PolynomialFeatures
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split,StratifiedShuffleSplit
 SEED = 42
 
 class Preprocess():
@@ -79,5 +79,7 @@ class Preprocess():
       return x_train,y_train,x_test,y_test,x_validation,y_validation
     return x_train,y_train,x_test,y_test    
 
+  def stratified_split(self,x,y):
+    pass
 
 
