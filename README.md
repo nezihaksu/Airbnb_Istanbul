@@ -12,7 +12,7 @@ Percentage of Missing Value in Each Feature:
 
 ![](/images/missing_percentage_table.JPG)
 
-### Cleaning
+## Cleaning
 
 As there are so many data types and null values there are also features that are not useful at all.In order automatically ready and prepare dataset by eliminating these features i wrote these functions:
 
@@ -99,4 +99,11 @@ strip_signs function drops metric and monatery signs from the numerical data.Whi
 	  return self.df
 ```
 ### NOTE:These function are for preparing a dataset for a machine learning model quickly by automating the process.
+
+
+## Preprocessing
+
+Before preprocessing thinking in terms of the model's need gives lots of hints to what kind of functions should be created in order to harmonize them with the model creating phase.
+
+Model creating is not linear as one would have to go back to preprocessing phase to drop column or engineer features after seeing performance of the created model.
 
