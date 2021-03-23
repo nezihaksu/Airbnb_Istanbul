@@ -60,6 +60,9 @@ class Pipelines():
 		x_train,y_train,x_test,y_test = preprocess.train_test_split(features,target,test_size,validation)
 		return x_train,y_train,x_test,y_test
 
+	def model_pipeline(self):
+		pass
+		
 if __name__ == '__main__':
 	pipelines = Pipelines(DF,FILE_TYPE)
 	expore = Pipelines().explorer()
