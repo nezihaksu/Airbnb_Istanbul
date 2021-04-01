@@ -1,93 +1,104 @@
-import pandas
-import np
 import math
 import collections
 from collections import Counter
+import random
 
-class Statistics():
+import pandas
+import numpy as np
 
-	def mean(self,x):
-		return sum(x)/len(x)
+from linear_algebra import LinearAlgebra
+from statistics import Statistics
 
-	def median(self,v):
-		n = len(v)
-		sorted_v = sorted(v)
-		midpoint = n//2
-
-		if n%2 == 1:
-			return sorted_v[midpoint]
-		else:
-			low_point = midpoint-1
-			high_point = midpoint
-			return (sorted_v[low_point] + sorted_v[high_point])/2
-
-	def quantile(self,x,p):
-		p_index = int(p*len(x))
-		return sorted(x)[p_index]
-
-	def mode(self,x):
-		return collections.Counter(x).most_common()
-
-	def range(self,x):
-		return max(x) - min(x)
-
-	def de_mean(self,x):
-		x_bar = self.mean(x)
-		return [x_i - x_bar for x_i in x]
-
-	def variance(self,x):
-		n = len(x)
-		deviations = self.de_mean(x)
-		return la.sum_of_squares(deviations)/(n-1)
-
-	def standard_deviation(self,x):
-		return math.sqrt(self.variance(x))
-
-	def interquantile_range(self,x):
-		return self.quantile(x,0.75) - self.quantile(x,0.25)
-
-	def covariance(self,x,y):
-		n = len(x)
-		if n != len(y):
-			print("x and y vectors must have the same length!")
-		return la.dot(self.de_mean(x),self.de_mean(y))/(n-1)
-	
-	def correlation(self,x,y):
-		stdev_x = self.standard_deviation(x)
-		stdev_y = self.standard_deviation(y)
-		if stdev_x > 0 and stdev_y > 0:
-			return self.covariance(x,y)/(stdev_x*stdev_y)
-		return 0
-
+la = LinearAlgebra()
 stats = Statistics()
 
-class LinearRegression():
+np.random.seed(0)
+np.set_printoptions(precision=1)
 
-	def predict(self,a,b,x_i):
-		return np.sum([np.multiply(b,x_i),a])
+y = np.random.randn(100,1)
+x = np.random.randn(100,2)
+
+data = np.array(list(zip(x,y)))
+
+
+class StochasticGradientDescent:
+	
+	def __init__(self,lr,n_iter = 1000):
+		self.lr = lr
+		self.n_iter = n_iter
+
+	def in_random_order(self,data):
+		indexes = [i for i,_ in enumerate(data)]
+		random.shuffle(indexes)
+
+		for i in indexes:
+			yield data[i]
+
+	def minimize_stochastic(self):
+		data = np.array(list(zip(x,y)))
+
+		for x_i,y_i in self.in_random_order(data):
+			y_predicted = self._approximation(x_i, self.weights, self.bias)
+			dw = (1 / n_samples) * np.dot(x_i.T, (y_predicted - y_i))
+			db = (1 / n_samples) * np.sum(y_predicted - y_i)
+			self.weights -= self.lr * dw
+			self.bias -= self.lr * db
+
+
+	def negate(self,f):
+		return lambda *args,**kwargs:f(*args,**kwargs)
+	
+	def negate_all(self,f):
+		return lambda *args,**kwargs:[-y for y in f(*args,**kwargs)]
+	
+	def maximize_stochastic(self,target_fn,gradient_fn,theta_0,tolerance = 0.000001):
+		return self.minimize_stochastic(self.negate(target_fn),
+										self.negate_all(gradient_fn),
+										theta_0,
+										alpha_0,
+										patience)
+
+	def predict(self, X):
+		return self._predict(X, self.weights, self.bias)
+
+	def _predict(self, X, w, b):
+	    raise NotImplementedError()
+
+	def _approximation(self, X, w, b):
+	    raise NotImplementedError()
+
+class BaseRegression(StochasticGradientDescent):
+
+	def __init__(self):
+		super.__init__()
+		weights = None
+		bias = None
+	
+
+
 
 	def error(self,a,b,x_i,y_i):
 		return np.subtract(y_i,self.predict(a,b,x_i))
-
+	
 	def sum_of_squared_errors(self,a,b,x,y):
 		return np.sum(self.error(a,b,x_i,y_i)**2 for x_i,y_i in zip(x,y))
-
-	def least_square_fit(self,x,y):
-		beta = np.multiply(stats.correlation(x,y),stats(np.divide(standard_deviation(y),stats.standard_deviation(x))))
-		alpha = np.subtract(stats.mean(y),np.multiply(beta,stats.mean(x)))
-		return alpha,beta
-
+	
 	def total_sum_of_squares(self,y):
 		np.sum([v**2 for v in stats.de_mean(y)])
-
+	
 	def r_squared(self,alpha,beta,x,y):
 		return 1.0 - (np.divide(self.sum_of_squared_errors(alpha,beta,x,y),self.total_sum_of_squares(y)))
+	
+	def _approximation(self,a,b,x_i):
+		raise NotImplementedError()
 
-	def squared_error(self,x_i,y_i,theta):
-		alpha,beta = theta
-		return self.error(alpha,beta,x_i,y_i)**2
 
-	def squared_error_gradient(x_i,y_i)
-		pass
+
+class MultipleRegression(BaseRegression):
+	
+	def __init__(self):
+		pass	
+
+import numpy as np
 
 
