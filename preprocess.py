@@ -82,4 +82,10 @@ class Preprocess():
   def stratified_split(self,x,y):
     pass
 
+  def normalization(self,data):
+    mean = data.mean()
+    std = data.std()
+    z = (data - mean) / std
+    return z
+
 

@@ -1,6 +1,7 @@
 from explore import Explore
 from cleaner import Cleaner
 from preprocess import Preprocess
+from model import MultiRegression
 import numpy as np
 
 DF = r'C:\Users\nezih\Desktop\data\listings.csv'
@@ -10,6 +11,7 @@ INPLACE = True
 ALLOWED_NAN_PER = 10
 DROP_KEYWORDS = ["code","zipcode","link","url","id","name","thumbnail","picture","pic","description","note"]
 NONE_VALUES = [np.nan,None,"None","Null","NONE","NULL","none","null","nan",""," "]
+
 OUTLIER_COLUMN = None
 POLYTRANS_COLUMNS = None
 UPPER_QUANTILE = 0.99
@@ -18,6 +20,13 @@ ALLOWED_CORR_PER = 0.8
 TEST_SIZE = 0.25
 VALIDATION_DATASET = False
 STRATIFIED_SPLIT = False
+
+LEARNING_RATE = 0.01
+N_ITERS = 100
+BATCH_SIZE = 100
+DECAY_RATE = 0.9
+TOLERANCE = 1e-06
+
 
 class Pipelines():
 
@@ -60,13 +69,15 @@ class Pipelines():
 		x_train,y_train,x_test,y_test = preprocess.train_test_split(features,target,test_size,validation)
 		return x_train,y_train,x_test,y_test
 
-	def model_pipeline(self):
-		pass
+	def model_pipeline(self,x_train,y_train,x_test,y_test,learning_rate,n_iters,batch_size,decay_rate,tolerance):
+		mr = MultiRegression(learning_rate,n_iters,batch_size,decay_rate,tolerance)
+		mr.fit(x_train,y_train)
+		y_pred = mr.predict(x_test)
+		return mr.r2_score(y_test,y_pred),model.mse_score(y_test,y_pred)
 		
 if __name__ == '__main__':
 	pipelines = Pipelines(DF,FILE_TYPE)
 	expore = Pipelines().explorer()
 	cleaned_df = pipelines.cleaner_pipeline(DROP_KEYWORDS,INPLACE,ALLOWED_NAN_PER)
-	preprocessed_df = pipelines.preprocess_pipeline(cleaned_df,OUTLIER_COLUMN,OUTLIER_COLUMN,POLYTRANS_COLUMNS,ALLOWED_CORR_PER)
-	print(preprocessed_df)
-	
+	x_train,y_train,x_test,y_test = pipelines.preprocess_pipeline(cleaned_df,OUTLIER_COLUMN,OUTLIER_COLUMN,POLYTRANS_COLUMNS,ALLOWED_CORR_PER)
+	r2_score,mse_score = pipelines.model_pipeline(x_train,y_train,x_test,y_test,LEARNING_RATE,N_ITERS,BATCH_SIZE,DECAY_RATE,TOLERANCE)

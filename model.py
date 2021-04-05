@@ -27,7 +27,6 @@ class StochasticBaseRegression:
 		self.weights = None
 		self.bias = None
 
-
 	def fit(self, X, y):
 		data = np.array(list(zip(X,y)))
         # init parameters
@@ -55,7 +54,6 @@ class StochasticBaseRegression:
 				db = (1 / n_samples) * np.sum(residual)
 				dw_diff = self.decay_rate * dw_diff - self.lr * dw
 				db_diff = self.decay_rate * db_diff - self.lr * db
-
 
 				if np.all(np.abs(dw_diff)) <= self.tolerance:
 					break
