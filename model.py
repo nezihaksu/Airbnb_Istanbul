@@ -15,7 +15,6 @@ class RegressionMixin:
 	def mse_score(self,y_true,y_predicted):
 		return np.mean((y_true - y_predicted)**2)
 
-
 class StochasticBaseRegression:
     
 	def __init__(self, learning_rate=0.01,n_iters=10, batch_size=100,decay_rate=0.70,tolerance=1e-17):
@@ -80,3 +79,6 @@ class MultiRegression(RegressionMixin,StochasticBaseRegression):
 		return np.dot(X, w) + b
 
 
+def value(self,x,y):
+	the_value = df.iloc[x:y]
+	return the_value

@@ -4,23 +4,26 @@ from preprocess import Preprocess
 from model import MultiRegression
 import numpy as np
 
+#Open the file.
 DF = r'C:\Users\nezih\Desktop\data\listings.csv'
 FILE_TYPE = "csv"
+#Cleaning.
 IMPUTE = True
 INPLACE = True
 ALLOWED_NAN_PER = 10
 DROP_KEYWORDS = ["code","zipcode","link","url","id","name","thumbnail","picture","pic","description","note"]
 NONE_VALUES = [np.nan,None,"None","Null","NONE","NULL","none","null","nan",""," "]
-
+#Preprocess
+TARGET = "Price"
 OUTLIER_COLUMN = None
 POLYTRANS_COLUMNS = None
 UPPER_QUANTILE = 0.99
 LOWER_QUANTILE = 0.01
 ALLOWED_CORR_PER = 0.8
 TEST_SIZE = 0.25
-VALIDATION_DATASET = False
+VALIDATION_BOOL = False
 STRATIFIED_SPLIT = False
-
+#Model training.
 LEARNING_RATE = 0.01
 N_ITERS = 100
 BATCH_SIZE = 100
@@ -39,8 +42,8 @@ class Pipelines():
 		explorer.intro()
 		explorer.unique_values()
 		explorer.missing_values()
-		explorer.dtype_histogram()
-		explorer.scatter_plot(x,y)
+		#explorer.dtype_histogram()
+		#explorer.scatter_plot(x,y)
 
 	def cleaner_pipeline(self,drop_keywords,inplace=None,missing_percentage=10):
 		cleaner = Cleaner(self.df,self.file_type)
@@ -53,9 +56,10 @@ class Pipelines():
 		df = cleaner.space_to_underscore()
 		return df
 	
-	def preprocess_pipeline(self,df,upper_quantile,lower_quantile,outlier_column:str=None,polytrans_columns:list=None,corr_percentage=0.7,test_size=0.25,validation=False):
+	def preprocess_pipeline(self,df,upper_quantile,lower_quantile,target_name,none_values,outlier_column:str=None,
+							polytrans_columns:list=None,corr_percentage=0.7,test_size=0.25,validation=False):
 		preprocess = Preprocess(df)
-		target = preprocess.features_target(df)
+		target_feature = preprocess.features_target(target_name,none_values)
 		if outlier_column != None:
 			preprocess.drop_outliers(outlier_column,upper_quantile,lower_quantile)
 		preprocess.drop_multicoll_columns(ALLOWED_CORR_PER)
@@ -64,10 +68,10 @@ class Pipelines():
 			preprocess.polytrans(polytrans_columns)
 		features = preprocess.one_hot_encoder()
 		if validation:
-			x_train,y_train,x_test,y_test,x_validation,y_validation = train_test_split(features,target,test_size,validation)
+			x_train,y_train,x_test,y_test,x_validation,y_validation = train_test_split(features,target_feature,test_size,validation)
 			return x_train,y_train,x_test,y_test,x_validation,y_validation
-		x_train,y_train,x_test,y_test = preprocess.train_test_split(features,target,test_size,validation)
-		return x_train,y_train,x_test,y_test
+		x_train,y_train,x_test,y_test = preprocess.train_test_split(features,target_feature,test_size,validation)
+		return x_train,x_test,y_train,y_test
 
 	def model_pipeline(self,x_train,y_train,x_test,y_test,learning_rate,n_iters,batch_size,decay_rate,tolerance):
 		mr = MultiRegression(learning_rate,n_iters,batch_size,decay_rate,tolerance)
@@ -77,7 +81,13 @@ class Pipelines():
 		
 if __name__ == '__main__':
 	pipelines = Pipelines(DF,FILE_TYPE)
-	expore = Pipelines().explorer()
+	expore = pipelines.explorer()
 	cleaned_df = pipelines.cleaner_pipeline(DROP_KEYWORDS,INPLACE,ALLOWED_NAN_PER)
-	x_train,y_train,x_test,y_test = pipelines.preprocess_pipeline(cleaned_df,OUTLIER_COLUMN,OUTLIER_COLUMN,POLYTRANS_COLUMNS,ALLOWED_CORR_PER)
-	r2_score,mse_score = pipelines.model_pipeline(x_train,y_train,x_test,y_test,LEARNING_RATE,N_ITERS,BATCH_SIZE,DECAY_RATE,TOLERANCE)
+	x_train,x_test,y_train,y_test = pipelines.preprocess_pipeline(
+																df=cleaned_df,outlier_columns = OUTLIER_COLUMN,
+																polytrans_columns = POLYTRANS_COLUMNS,corr_percentage = ALLOWED_CORR_PER,
+																target_name = TARGET,upper_quantile = UPPER_QUANTILE,
+																lower_quantile = LOWER_QUANTILE,none_values = NONE_VALUES,
+																test_size = TEST_SIZE,validation = VALIDATION_BOOL)
+	#r2_score,mse_score = pipelines.model_pipeline(x_train,y_train,x_test,y_test,LEARNING_RATE,N_ITERS,BATCH_SIZE,DECAY_RATE,TOLERANCE)
+	#print(r2_score,mse_score)

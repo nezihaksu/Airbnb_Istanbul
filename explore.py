@@ -26,7 +26,7 @@ class Explore():
     #Unique values that are in features.
     for column in self.df.columns:
       print(column.upper()+ " UNIQUE VALUES")
-      print(str(df[column].unique())+"\n")
+      print(str(self.df[column].unique())+"\n")
 
   def missing_values(self):
     missing_percentage = self.df.isnull().sum()*100/len(self.df)

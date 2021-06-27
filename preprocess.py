@@ -26,8 +26,8 @@ class Preprocess():
         discrete_features.append(column)
     return discrete_features,continuous_features
 
-  def features_target(self,target_name:str=None,none_values):
-    self.df = self.df[self.df[target_name] is not in none_values]
+  def features_target(self,none_values,target_name:str=None):
+    self.df = self.df[self.df[target_name] not in none_values]
     target = self.df[target_name]
     self.df = self.df.drop(target_name,axis=1,inplace=True)
     self.categorical_features,self.numerical_features = self._cat_num_features()
@@ -73,19 +73,19 @@ class Preprocess():
     return self.df
 
   def train_test_split(self,x,y,test_size,validation=False):
-    x_train,y_train,x_test,y_test = train_test_split(x,y,test_size=test_size,random_state=SEED)
+    x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=test_size,random_state=SEED)
     if validation:
-      x_test,y_test,x_validation,y_validation = train_test_split(x_test,y_test,test_size=test_size,random_state=SEED)
-      return x_train,y_train,x_test,y_test,x_validation,y_validation
-    return x_train,y_train,x_test,y_test    
+      x_test,x_validation,y_test,y_validation = train_test_split(x_test,y_test,test_size=test_size,random_state=SEED)
+      return x_train,x_test,y_train,y_test,x_validation,y_validation
+    return x_train,x_test,y_train,y_test    
 
   def stratified_split(self,x,y):
     pass
 
   def normalization(self,data):
-    mean = data.mean()
-    std = data.std()
-    z = (data - mean) / std
+    mean = np.mean(data)
+    std = np.std(data)
+    z = np.divide(np.subtract(data,mean),std)
     return z
 
 
