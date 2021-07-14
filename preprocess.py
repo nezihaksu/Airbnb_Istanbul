@@ -26,10 +26,9 @@ class Preprocess():
         discrete_features.append(column)
     return discrete_features,continuous_features
 
-  def features_target(self,none_values,target_name:str=None):
-    self.df = self.df[self.df[target_name] not in none_values]
+  def target_feature(self,none_values,target_name:str=None):
     target = self.df[target_name]
-    self.df = self.df.drop(target_name,axis=1,inplace=True)
+    self.df.drop(target_name,axis=1,inplace=True)
     self.categorical_features,self.numerical_features = self._cat_num_features()
     return target
 

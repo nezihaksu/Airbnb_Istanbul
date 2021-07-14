@@ -14,7 +14,7 @@ ALLOWED_NAN_PER = 10
 DROP_KEYWORDS = ["code","zipcode","link","url","id","name","thumbnail","picture","pic","description","note"]
 NONE_VALUES = [np.nan,None,"None","Null","NONE","NULL","none","null","nan",""," "]
 #Preprocess
-TARGET = "Price"
+TARGET = "price"
 OUTLIER_COLUMN = None
 POLYTRANS_COLUMNS = None
 UPPER_QUANTILE = 0.99
@@ -59,7 +59,7 @@ class Pipelines():
 	def preprocess_pipeline(self,df,upper_quantile,lower_quantile,target_name,none_values,outlier_column:str=None,
 							polytrans_columns:list=None,corr_percentage=0.7,test_size=0.25,validation=False):
 		preprocess = Preprocess(df)
-		target_feature = preprocess.features_target(target_name,none_values)
+		target_feature = preprocess.target_feature(none_values,target_name)
 		if outlier_column != None:
 			preprocess.drop_outliers(outlier_column,upper_quantile,lower_quantile)
 		preprocess.drop_multicoll_columns(ALLOWED_CORR_PER)
@@ -84,10 +84,15 @@ if __name__ == '__main__':
 	expore = pipelines.explorer()
 	cleaned_df = pipelines.cleaner_pipeline(DROP_KEYWORDS,INPLACE,ALLOWED_NAN_PER)
 	x_train,x_test,y_train,y_test = pipelines.preprocess_pipeline(
-																df=cleaned_df,outlier_columns = OUTLIER_COLUMN,
-																polytrans_columns = POLYTRANS_COLUMNS,corr_percentage = ALLOWED_CORR_PER,
-																target_name = TARGET,upper_quantile = UPPER_QUANTILE,
-																lower_quantile = LOWER_QUANTILE,none_values = NONE_VALUES,
-																test_size = TEST_SIZE,validation = VALIDATION_BOOL)
-	#r2_score,mse_score = pipelines.model_pipeline(x_train,y_train,x_test,y_test,LEARNING_RATE,N_ITERS,BATCH_SIZE,DECAY_RATE,TOLERANCE)
-	#print(r2_score,mse_score)
+																df=cleaned_df,
+																outlier_column = OUTLIER_COLUMN,
+																polytrans_columns = POLYTRANS_COLUMNS,
+																corr_percentage = ALLOWED_CORR_PER,
+																target_name = TARGET,
+																upper_quantile = UPPER_QUANTILE,
+																lower_quantile = LOWER_QUANTILE,
+																none_values = NONE_VALUES,
+																test_size = TEST_SIZE,
+																validation = VALIDATION_BOOL)
+	r2_score,mse_score = pipelines.model_pipeline(x_train,y_train,x_test,y_test,LEARNING_RATE,N_ITERS,BATCH_SIZE,DECAY_RATE,TOLERANCE)
+	print(r2_score,mse_score)
